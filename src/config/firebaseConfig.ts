@@ -7,4 +7,5 @@ admin.initializeApp({
   credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY!)),
 });
 
-export const firestore = admin.firestore();
+const db = admin.firestore();
+export { db };

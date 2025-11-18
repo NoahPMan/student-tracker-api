@@ -23,5 +23,5 @@ For my project, I need to add one extra backend feature that we didn't cover in 
 I picked **Nodemailer** because sending emails is important for user communication. For example, when a student signs up, they can get a confirmation email.
 
 - Install it:
-  ```bash
+  ```bash or powershell
   npm install nodemailer

@@ -14,3 +14,4 @@ describe("Course API", () => {
     expect(res.status).toBe(201);
   });
 });
+
