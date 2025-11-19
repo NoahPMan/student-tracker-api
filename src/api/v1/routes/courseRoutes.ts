@@ -1,5 +1,7 @@
 import express from "express";
 import * as courseController from "../controllers/courseController";
+import { authenticate } from "../middleware/authenticate";
+import { isAuthorized } from "../middleware/authorize";
 
 const router = express.Router();
 
@@ -46,6 +48,6 @@ router.put("/:id", courseController.updateCourse);
  *     summary: Delete a course by ID
  *     tags: [Courses]
  */
-router.delete("/:id", courseController.deleteCourse);
+router.delete("/:id", authenticate, isAuthorized(["admin"]), courseController.deleteCourse);
 
 export default router;

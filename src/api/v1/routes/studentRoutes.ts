@@ -1,5 +1,8 @@
 import express from "express";
 import * as studentController from "../controllers/studentController";
+import { authenticate } from "../middleware/authenticate";
+import { isAuthorized } from "../middleware/authorize";
+
 
 const router = express.Router();
 
@@ -101,6 +104,6 @@ router.put("/:id", studentController.updateStudent);
  *       204:
  *         description: Student deleted successfully
  */
-router.delete("/:id", studentController.deleteStudent);
+router.delete("/:id", authenticate, isAuthorized(["admin"]), studentController.deleteStudent);
 
 export default router;

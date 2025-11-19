@@ -1,5 +1,7 @@
 import express from "express";
 import * as assignmentController from "../controllers/assignmentController";
+import { authenticate } from "../middleware/authenticate";
+import { isAuthorized } from "../middleware/authorize";
 
 const router = express.Router();
 
@@ -46,6 +48,6 @@ router.put("/:id", assignmentController.updateAssignment);
  *     summary: Delete an assignment by ID
  *     tags: [Assignments]
  */
-router.delete("/:id", assignmentController.deleteAssignment);
+router.delete("/:id", authenticate, isAuthorized(["admin"]), assignmentController.deleteAssignment)
 
 export default router;

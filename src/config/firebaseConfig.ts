@@ -6,6 +6,6 @@ admin.initializeApp({
 });
 
 const db = admin.firestore();
-export { db };
+const auth = admin.auth();
 
-console.log("Firebase initialized:", !!db);
+export { db, auth };
