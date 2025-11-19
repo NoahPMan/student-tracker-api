@@ -6,7 +6,7 @@ import setupSwagger from "./config/swagger";
 import studentRoutes from "./api/v1/routes/studentRoutes";
 import courseRoutes from "./api/v1/routes/courseRoutes";
 import assignmentRoutes from "./api/v1/routes/assignmentRoutes";
-// import errorHandler from "./api/v1/middleware/errorHandler";
+import { errorHandler } from "./api/v1/middleware/errorHandler";
 
 dotenv.config();
 const app = express();
@@ -24,6 +24,6 @@ app.use("/api/v1/courses", courseRoutes);
 app.use("/api/v1/assignments", assignmentRoutes);
 
 // Error Handler
-// app.use(errorHandler);
+app.use(errorHandler);
 
 export default app;

@@ -8,15 +8,23 @@ import { ObjectSchema } from "joi";
  * @returns {(req: Request, res: Response, next: NextFunction) => void} Express middleware function.
  *
  * @example
- * // Usage in a route:
  * router.post("/students", validateRequest(studentSchema), (req, res) => { ... });
  */
 export const validateRequest = (schema: ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const { error } = schema.validate(req.body);
+    const { error, value } = schema.validate(req.body, {
+      abortEarly: false, // Show all validation errors
+      stripUnknown: true // Remove unknown fields
+    });
+
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({
+        errors: error.details.map(detail => detail.message)
+      });
     }
+
+    // Replace req.body with validated and sanitized data
+    req.body = value;
     next();
   };
 };

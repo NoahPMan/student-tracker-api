@@ -1,28 +1,54 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import * as studentService from "../services/studentService";
+import { sendEmail } from "../services/emailService";
 
-export const createStudent = async (req: Request, res: Response) => {
-  const id = await studentService.createStudent(req.body);
-  res.status(201).json({ message: "Student created", id });
+export const createStudent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = await studentService.createStudent(req.body);
+    await sendEmail(
+      req.body.email,
+      "Welcome to Student Tracker",
+      `Hello ${req.body.name}, your account has been created successfully!`
+    );
+    res.status(201).json({ message: "Student created and email sent", id });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const getAllStudents = async (_req: Request, res: Response) => {
-  const students = await studentService.getAllStudents();
-  res.status(200).json(students);
+export const getAllStudents = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const students = await studentService.getAllStudents();
+    res.status(200).json(students);
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const getStudentById = async (req: Request, res: Response) => {
-  const student = await studentService.getStudentById(req.params.id);
-  if (!student) return res.status(404).json({ message: "Student not found" });
-  res.status(200).json(student);
+export const getStudentById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const student = await studentService.getStudentById(req.params.id);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+    res.status(200).json(student);
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const updateStudent = async (req: Request, res: Response) => {
-  await studentService.updateStudent(req.params.id, req.body);
-  res.status(200).json({ message: "Student updated" });
+export const updateStudent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await studentService.updateStudent(req.params.id, req.body);
+    res.status(200).json({ message: "Student updated" });
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const deleteStudent = async (req: Request, res: Response) => {
-  await studentService.deleteStudent(req.params.id);
-  res.status(204).send();
+export const deleteStudent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await studentService.deleteStudent(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
 };

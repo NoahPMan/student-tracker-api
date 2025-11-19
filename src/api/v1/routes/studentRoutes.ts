@@ -7,7 +7,7 @@ const router = express.Router();
  * @openapi
  * /api/v1/students:
  *   post:
- *     summary: Create a new student
+ *     summary: Create a new student and send confirmation email
  *     tags:
  *       - Students
  *     requestBody:
@@ -18,7 +18,12 @@ const router = express.Router();
  *             $ref: '#/components/schemas/Student'
  *     responses:
  *       201:
- *         description: Student created successfully
+ *         description: Student created successfully and confirmation email sent
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Student created and email sent"
+ *               id: "abc123"
  */
 router.post("/", studentController.createStudent);
 
