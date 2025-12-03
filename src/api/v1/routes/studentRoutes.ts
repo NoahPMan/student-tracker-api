@@ -2,7 +2,12 @@ import express from "express";
 import * as studentController from "../controllers/studentController";
 import { authenticate } from "../middleware/authenticate";
 import { isAuthorized } from "../middleware/authorize";
-
+import { validateRequest } from "../middleware/validate";
+import {
+  studentBodySchema,
+  studentParamsSchema,
+  studentQuerySchema
+} from "../middleware/validate";
 
 const router = express.Router();
 
@@ -28,7 +33,13 @@ const router = express.Router();
  *               message: "Student created and email sent"
  *               id: "abc123"
  */
-router.post("/", studentController.createStudent);
+router.post(
+  "/",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ body: studentBodySchema }),
+  studentController.createStudent
+);
 
 /**
  * @openapi
@@ -41,7 +52,12 @@ router.post("/", studentController.createStudent);
  *       200:
  *         description: List of students
  */
-router.get("/", studentController.getAllStudents);
+router.get(
+  "/",
+  authenticate,
+  validateRequest({ query: studentQuerySchema }),
+  studentController.getAllStudents
+);
 
 /**
  * @openapi
@@ -60,7 +76,12 @@ router.get("/", studentController.getAllStudents);
  *       200:
  *         description: Student details
  */
-router.get("/:id", studentController.getStudentById);
+router.get(
+  "/:id",
+  authenticate,
+  validateRequest({ params: studentParamsSchema }),
+  studentController.getStudentById
+);
 
 /**
  * @openapi
@@ -85,7 +106,13 @@ router.get("/:id", studentController.getStudentById);
  *       200:
  *         description: Student updated successfully
  */
-router.put("/:id", studentController.updateStudent);
+router.put(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ params: studentParamsSchema, body: studentBodySchema }),
+  studentController.updateStudent
+);
 
 /**
  * @openapi
@@ -104,6 +131,10 @@ router.put("/:id", studentController.updateStudent);
  *       204:
  *         description: Student deleted successfully
  */
-router.delete("/:id", authenticate, isAuthorized(["admin"]), studentController.deleteStudent);
-
-export default router;
+router.delete(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin"]),
+  validateRequest({ params: studentParamsSchema }),
+  studentController.deleteStudent
+);

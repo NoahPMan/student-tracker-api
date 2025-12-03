@@ -2,6 +2,12 @@ import express from "express";
 import * as courseController from "../controllers/courseController";
 import { authenticate } from "../middleware/authenticate";
 import { isAuthorized } from "../middleware/authorize";
+import { validateRequest } from "../middleware/validate";
+import {
+  courseBodySchema,
+  courseParamsSchema,
+  studentQuerySchema // reused for pagination/sorting
+} from "../middleware/validate";
 
 const router = express.Router();
 
@@ -12,7 +18,13 @@ const router = express.Router();
  *     summary: Create a new course
  *     tags: [Courses]
  */
-router.post("/", courseController.createCourse);
+router.post(
+  "/",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ body: courseBodySchema }),
+  courseController.createCourse
+);
 
 /**
  * @openapi
@@ -21,7 +33,12 @@ router.post("/", courseController.createCourse);
  *     summary: Get all courses
  *     tags: [Courses]
  */
-router.get("/", courseController.getAllCourses);
+router.get(
+  "/",
+  authenticate,
+  validateRequest({ query: studentQuerySchema }),
+  courseController.getAllCourses
+);
 
 /**
  * @openapi
@@ -30,7 +47,12 @@ router.get("/", courseController.getAllCourses);
  *     summary: Get a course by ID
  *     tags: [Courses]
  */
-router.get("/:id", courseController.getCourseById);
+router.get(
+  "/:id",
+  authenticate,
+  validateRequest({ params: courseParamsSchema }),
+  courseController.getCourseById
+);
 
 /**
  * @openapi
@@ -39,7 +61,13 @@ router.get("/:id", courseController.getCourseById);
  *     summary: Update a course by ID
  *     tags: [Courses]
  */
-router.put("/:id", courseController.updateCourse);
+router.put(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ params: courseParamsSchema, body: courseBodySchema }),
+  courseController.updateCourse
+);
 
 /**
  * @openapi
@@ -48,6 +76,12 @@ router.put("/:id", courseController.updateCourse);
  *     summary: Delete a course by ID
  *     tags: [Courses]
  */
-router.delete("/:id", authenticate, isAuthorized(["admin"]), courseController.deleteCourse);
+router.delete(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin"]),
+  validateRequest({ params: courseParamsSchema }),
+  courseController.deleteCourse
+);
 
 export default router;

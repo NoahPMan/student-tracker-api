@@ -1,7 +1,14 @@
+
 import express from "express";
 import * as assignmentController from "../controllers/assignmentController";
 import { authenticate } from "../middleware/authenticate";
 import { isAuthorized } from "../middleware/authorize";
+import { validateRequest } from "../middleware/validate";
+import {
+  assignmentBodySchema,
+  assignmentParamsSchema,
+  studentQuerySchema // reused for pagination/sorting
+} from "../middleware/validate";
 
 const router = express.Router();
 
@@ -12,7 +19,13 @@ const router = express.Router();
  *     summary: Create a new assignment
  *     tags: [Assignments]
  */
-router.post("/", assignmentController.createAssignment);
+router.post(
+  "/",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ body: assignmentBodySchema }),
+  assignmentController.createAssignment
+);
 
 /**
  * @openapi
@@ -21,7 +34,12 @@ router.post("/", assignmentController.createAssignment);
  *     summary: Get all assignments
  *     tags: [Assignments]
  */
-router.get("/", assignmentController.getAllAssignments);
+router.get(
+  "/",
+  authenticate,
+  validateRequest({ query: studentQuerySchema }),
+  assignmentController.getAllAssignments
+);
 
 /**
  * @openapi
@@ -30,7 +48,12 @@ router.get("/", assignmentController.getAllAssignments);
  *     summary: Get an assignment by ID
  *     tags: [Assignments]
  */
-router.get("/:id", assignmentController.getAssignmentById);
+router.get(
+  "/:id",
+  authenticate,
+  validateRequest({ params: assignmentParamsSchema }),
+  assignmentController.getAssignmentById
+);
 
 /**
  * @openapi
@@ -39,7 +62,13 @@ router.get("/:id", assignmentController.getAssignmentById);
  *     summary: Update an assignment by ID
  *     tags: [Assignments]
  */
-router.put("/:id", assignmentController.updateAssignment);
+router.put(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin", "manager"]),
+  validateRequest({ params: assignmentParamsSchema, body: assignmentBodySchema }),
+  assignmentController.updateAssignment
+);
 
 /**
  * @openapi
@@ -48,6 +77,12 @@ router.put("/:id", assignmentController.updateAssignment);
  *     summary: Delete an assignment by ID
  *     tags: [Assignments]
  */
-router.delete("/:id", authenticate, isAuthorized(["admin"]), assignmentController.deleteAssignment)
+router.delete(
+  "/:id",
+  authenticate,
+  isAuthorized(["admin"]),
+  validateRequest({ params: assignmentParamsSchema }),
+  assignmentController.deleteAssignment
+);
 
 export default router;
