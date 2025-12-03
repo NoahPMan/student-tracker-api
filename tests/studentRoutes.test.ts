@@ -1,4 +1,3 @@
-
 import request from "supertest";
 import app from "../src/app";
 import { auth } from "../src/config/firebaseConfig";
