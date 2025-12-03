@@ -10,16 +10,22 @@ export const createStudent = async (req: Request, res: Response, next: NextFunct
       "Welcome to Student Tracker",
       `Hello ${req.body.name}, your account has been created successfully!`
     );
-    res.status(201).json({ message: "Student created and email sent", id });
+    res.status(201).json({ message: "Student created and email sent", id, data: req.body });
   } catch (error) {
     next(error);
   }
 };
 
-export const getAllStudents = async (_req: Request, res: Response, next: NextFunction) => {
+export const getAllStudents = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const students = await studentService.getAllStudents();
-    res.status(200).json(students);
+    const { page, limit, sortBy, sortOrder } = req.query;
+    const students = await studentService.getAllStudents({
+      page: page ? parseInt(page as string, 10) : undefined,
+      limit: limit ? parseInt(limit as string, 10) : undefined,
+      sortBy: sortBy as string,
+      sortOrder: sortOrder as "asc" | "desc"
+    });
+    res.status(200).json({ message: "Students fetched successfully", data: students });
   } catch (error) {
     next(error);
   }
@@ -29,7 +35,7 @@ export const getStudentById = async (req: Request, res: Response, next: NextFunc
   try {
     const student = await studentService.getStudentById(req.params.id);
     if (!student) return res.status(404).json({ message: "Student not found" });
-    res.status(200).json(student);
+    res.status(200).json({ message: "Student fetched successfully", data: student });
   } catch (error) {
     next(error);
   }
@@ -38,7 +44,7 @@ export const getStudentById = async (req: Request, res: Response, next: NextFunc
 export const updateStudent = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await studentService.updateStudent(req.params.id, req.body);
-    res.status(200).json({ message: "Student updated" });
+    res.status(200).json({ message: "Student updated successfully" });
   } catch (error) {
     next(error);
   }

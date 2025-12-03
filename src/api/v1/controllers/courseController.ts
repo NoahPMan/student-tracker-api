@@ -1,27 +1,31 @@
 import { Request, Response } from "express";
-import { createDocument, getDocuments, getDocumentById, updateDocument, deleteDocument } from "../repositories/firestoreRepository";
-
-const COLLECTION = "courses";
+import * as courseService from "../services/courseService";
 
 /**
  * Create a new course
  */
 export const createCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = await createDocument(COLLECTION, req.body);
-    res.status(201).json({ id, ...req.body });
+    const id = await courseService.createCourse(req.body);
+    res.status(201).json({ message: "Course created successfully", id, data: req.body });
   } catch (error) {
     res.status(500).json({ error: "Failed to create course" });
   }
 };
 
 /**
- * Get all courses
+ * Get all courses with pagination and sorting
  */
 export const getAllCourses = async (req: Request, res: Response): Promise<void> => {
   try {
-    const courses = await getDocuments(COLLECTION);
-    res.status(200).json(courses);
+    const { page, limit, sortBy, sortOrder } = req.query;
+    const courses = await courseService.getAllCourses({
+      page: page ? parseInt(page as string, 10) : undefined,
+      limit: limit ? parseInt(limit as string, 10) : undefined,
+      sortBy: sortBy as string,
+      sortOrder: sortOrder as "asc" | "desc"
+    });
+    res.status(200).json({ message: "Courses fetched successfully", data: courses });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch courses" });
   }
@@ -32,11 +36,11 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
  */
 export const getCourseById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const doc = await getDocumentById(COLLECTION, req.params.id);
-    if (!doc.exists) {
+    const course = await courseService.getCourseById(req.params.id);
+    if (!course) {
       res.status(404).json({ error: "Course not found" });
     } else {
-      res.status(200).json({ id: doc.id, ...doc.data() });
+      res.status(200).json({ message: "Course fetched successfully", data: course });
     }
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch course" });
@@ -48,7 +52,7 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
  */
 export const updateCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    await updateDocument(COLLECTION, req.params.id, req.body);
+    await courseService.updateCourse(req.params.id, req.body);
     res.status(200).json({ message: "Course updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update course" });
@@ -60,7 +64,7 @@ export const updateCourse = async (req: Request, res: Response): Promise<void> =
  */
 export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
   try {
-    await deleteDocument(COLLECTION, req.params.id);
+    await courseService.deleteCourse(req.params.id);
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ error: "Failed to delete course" });
