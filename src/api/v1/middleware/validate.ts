@@ -1,30 +1,77 @@
+
 import { Request, Response, NextFunction } from "express";
 import { ObjectSchema } from "joi";
+import Joi from "joi";
 
-/**
- * Middleware to validate incoming request body against a Joi schema.
- *
- * @param {ObjectSchema} schema - Joi schema to validate the request body.
- * @returns {(req: Request, res: Response, next: NextFunction) => void} Express middleware function.
- *
- * @example
- * router.post("/students", validateRequest(studentSchema), (req, res) => { ... });
- */
-export const validateRequest = (schema: ObjectSchema) => {
+interface RequestSchemas {
+  body?: ObjectSchema;
+  query?: ObjectSchema;
+  params?: ObjectSchema;
+}
+
+export const validateRequest = (schemas: RequestSchemas) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    const { error, value } = schema.validate(req.body, {
-      abortEarly: false, // Show all validation errors
-      stripUnknown: true // Remove unknown fields
-    });
+    const errors: string[] = [];
 
-    if (error) {
-      return res.status(400).json({
-        errors: error.details.map(detail => detail.message)
+    const validatePart = (schema: ObjectSchema, data: any, partName: string) => {
+      const { error, value } = schema.validate(data, {
+        abortEarly: false,
+        stripUnknown: true
       });
+      if (error) {
+        errors.push(...error.details.map(detail => `${partName}: ${detail.message}`));
+      }
+      return value;
+    };
+
+    if (schemas.body) req.body = validatePart(schemas.body, req.body, "Body");
+    if (schemas.query) req.query = validatePart(schemas.query, req.query, "Query");
+    if (schemas.params) req.params = validatePart(schemas.params, req.params, "Params");
+
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
     }
 
-    // Replace req.body with validated and sanitized data
-    req.body = value;
     next();
   };
 };
+
+// Student Schemas
+export const studentBodySchema = Joi.object({
+  name: Joi.string().min(3).max(50).required(),
+  email: Joi.string().email().required(),
+  age: Joi.number().integer().min(18).max(100).required()
+});
+
+export const studentQuerySchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(100).default(10),
+  sortBy: Joi.string().valid("name", "createdAt").optional(),
+  sortOrder: Joi.string().valid("asc", "desc").default("asc")
+});
+
+export const studentParamsSchema = Joi.object({
+  id: Joi.string().required()
+});
+
+// Assignment Schemas
+export const assignmentBodySchema = Joi.object({
+  title: Joi.string().min(3).max(100).required(),
+  description: Joi.string().max(500).optional(),
+  dueDate: Joi.date().required()
+});
+
+export const assignmentParamsSchema = Joi.object({
+  id: Joi.string().required()
+});
+
+// Course Schemas
+export const courseBodySchema = Joi.object({
+  name: Joi.string().min(3).max(100).required(),
+  code: Joi.string().alphanum().min(3).max(10).required(),
+  credits: Joi.number().integer().min(1).max(10).required()
+});
+
+export const courseParamsSchema = Joi.object({
+  id: Joi.string().required()
+});
