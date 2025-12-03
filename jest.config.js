@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
   roots: ['<rootDir>/tests'],
   moduleFileExtensions: ['ts', 'js'],
   transform: {
@@ -9,5 +10,4 @@ module.exports = {
   },
   coverageDirectory: 'coverage',
   collectCoverageFrom: ['src/**/*.ts'],
-  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
 };

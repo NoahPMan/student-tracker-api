@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from "express";
 import { ObjectSchema } from "joi";
 import Joi from "joi";
@@ -28,9 +27,17 @@ export const validateRequest = (schemas: RequestSchemas) => {
     if (schemas.query) req.query = validatePart(schemas.query, req.query, "Query");
     if (schemas.params) req.params = validatePart(schemas.params, req.params, "Params");
 
+    
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: `Validation error: ${errors.join(", ")}`,
+          code: "VALIDATION_ERROR",
+        },
+      });
     }
+
 
     next();
   };
@@ -75,3 +82,4 @@ export const courseBodySchema = Joi.object({
 export const courseParamsSchema = Joi.object({
   id: Joi.string().required()
 });
+

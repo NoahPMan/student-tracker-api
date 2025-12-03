@@ -1,16 +1,16 @@
-
 import express from "express";
 import * as assignmentController from "../controllers/assignmentController";
 import { authenticate } from "../middleware/authenticate";
 import { isAuthorized } from "../middleware/authorize";
-import { validateRequest } from "../middleware/validate";
-import {
-  assignmentBodySchema,
-  assignmentParamsSchema,
-  studentQuerySchema // reused for pagination/sorting
-} from "../middleware/validate";
+import { validateRequest, assignmentBodySchema, assignmentParamsSchema, studentQuerySchema } from "../middleware/validate";
 
 const router = express.Router();
+
+
+
+console.log("authenticate:", typeof authenticate);
+console.log("validateRequest:", typeof validateRequest);
+console.log("controller:", typeof assignmentController.getAssignmentById);
 
 /**
  * @openapi

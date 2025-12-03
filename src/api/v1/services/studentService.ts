@@ -20,7 +20,6 @@ export const getAllStudents = async (
 
   let query = db.collection(COLLECTION).orderBy(sortBy, sortOrder).limit(limit);
 
-  // Pagination using startAfter
   if (page > 1) {
     const skip = (page - 1) * limit;
     const snapshot = await db.collection(COLLECTION).orderBy(sortBy, sortOrder).limit(skip).get();

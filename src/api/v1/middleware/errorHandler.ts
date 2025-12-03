@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 export const errorHandler = (
-  err: Error,
+  err: any,
   req: Request,
   res: Response,
   _next: NextFunction
@@ -11,11 +11,14 @@ export const errorHandler = (
     console.error(`Stack: ${err.stack}`);
   }
 
-  res.status(500).json({
+  const statusCode = err.statusCode || 500;
+  const code = err.code || "INTERNAL_SERVER_ERROR";
+
+  res.status(statusCode).json({
     success: false,
     error: {
       message: err.message || "Internal server error",
-      code: "INTERNAL_SERVER_ERROR",
+      code,
     },
     timestamp: new Date().toISOString(),
   });

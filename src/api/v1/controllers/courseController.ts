@@ -1,22 +1,17 @@
-import { Request, Response } from "express";
+
+import { Request, Response, NextFunction } from "express";
 import * as courseService from "../services/courseService";
 
-/**
- * Create a new course
- */
-export const createCourse = async (req: Request, res: Response): Promise<void> => {
+export const createCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = await courseService.createCourse(req.body);
     res.status(201).json({ message: "Course created successfully", id, data: req.body });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create course" });
+    next(error);
   }
 };
 
-/**
- * Get all courses with pagination and sorting
- */
-export const getAllCourses = async (req: Request, res: Response): Promise<void> => {
+export const getAllCourses = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { page, limit, sortBy, sortOrder } = req.query;
     const courses = await courseService.getAllCourses({
@@ -27,46 +22,34 @@ export const getAllCourses = async (req: Request, res: Response): Promise<void> 
     });
     res.status(200).json({ message: "Courses fetched successfully", data: courses });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch courses" });
+    next(error);
   }
 };
 
-/**
- * Get a course by ID
- */
-export const getCourseById = async (req: Request, res: Response): Promise<void> => {
+export const getCourseById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const course = await courseService.getCourseById(req.params.id);
-    if (!course) {
-      res.status(404).json({ error: "Course not found" });
-    } else {
-      res.status(200).json({ message: "Course fetched successfully", data: course });
-    }
+    if (!course) return res.status(404).json({ message: "Course not found" });
+    res.status(200).json({ message: "Course fetched successfully", data: course });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch course" });
+    next(error);
   }
 };
 
-/**
- * Update a course by ID
- */
-export const updateCourse = async (req: Request, res: Response): Promise<void> => {
+export const updateCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await courseService.updateCourse(req.params.id, req.body);
     res.status(200).json({ message: "Course updated successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update course" });
+    next(error);
   }
 };
 
-/**
- * Delete a course by ID
- */
-export const deleteCourse = async (req: Request, res: Response): Promise<void> => {
+export const deleteCourse = async (req: Request, res: Response, next: NextFunction) => {
   try {
     await courseService.deleteCourse(req.params.id);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete course" });
+    next(error);
   }
 };

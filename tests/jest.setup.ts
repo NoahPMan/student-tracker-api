@@ -12,7 +12,12 @@ jest.mock("../src/config/firebaseConfig", () => ({
       })),
     })),
   },
-  auth: { verifyIdToken: jest.fn() },
+  auth: {
+    verifyIdToken: jest.fn().mockResolvedValue({
+      uid: "test-user",
+      role: "student", // Add role so isAuthorized works
+    }),
+  },
 }));
 
 process.env.FIREBASE_SERVICE_ACCOUNT_KEY = JSON.stringify({

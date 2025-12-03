@@ -9,6 +9,12 @@ import {
   studentQuerySchema
 } from "../middleware/validate";
 
+
+console.log("authenticate:", typeof authenticate);
+console.log("validateRequest:", typeof validateRequest);
+console.log("controller:", typeof studentController.getStudentById);
+
+
 const router = express.Router();
 
 /**
@@ -52,12 +58,7 @@ router.post(
  *       200:
  *         description: List of students
  */
-router.get(
-  "/",
-  authenticate,
-  validateRequest({ query: studentQuerySchema }),
-  studentController.getAllStudents
-);
+router.get("/", authenticate, validateRequest({ query: studentQuerySchema }), studentController.getAllStudents);
 
 /**
  * @openapi
@@ -138,3 +139,5 @@ router.delete(
   validateRequest({ params: studentParamsSchema }),
   studentController.deleteStudent
 );
+
+export default router;

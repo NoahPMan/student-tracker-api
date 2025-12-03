@@ -11,6 +11,12 @@ import {
 
 const router = express.Router();
 
+
+console.log("authenticate:", typeof authenticate);
+console.log("validateRequest:", typeof validateRequest);
+console.log("controller:", typeof courseController.getCourseById);
+
+
 /**
  * @openapi
  * /api/v1/courses:
